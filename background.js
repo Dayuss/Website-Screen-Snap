@@ -3,6 +3,7 @@
 const CAPTURE_INTERVAL_MS = 700; // captureVisibleTab is rate-limited (~2 calls/sec)
 const SETTLE_MS = 300; // time for scroll handlers / lazy content to react before we hide sticky bars
 const MAX_SLICES = 80; // safety cap for infinite-scroll pages
+const DELAY_OPTIONS = [0, 3, 5, 10]; // seconds; mirrors the popup selector
 const pendingPreviews = new Map(); // preview tab id -> payload
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -17,6 +18,14 @@ async function captureViewport(windowId) {
       if (attempt >= 2 || !/quota/i.test(String(err?.message))) throw err;
       await sleep(1000);
     }
+  }
+}
+
+function hostnameOf(url) {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return '';
   }
 }
 
@@ -68,9 +77,27 @@ async function captureFullPage(tab, pageInfo) {
   return { slices, viewportW: pageInfo.innerWidth, out };
 }
 
+// Counts down on the toolbar badge so the page itself stays untouched (and out of the screenshot).
+async function countdown(seconds) {
+  await chrome.action.setBadgeBackgroundColor({ color: '#4f46e5' });
+  for (let s = seconds; s > 0; s--) {
+    await chrome.action.setBadgeText({ text: String(s) });
+    await sleep(1000);
+  }
+  await chrome.action.setBadgeText({ text: '' });
+}
+
 async function capture(mode) {
   const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
   if (!tab?.id) throw new Error('No active tab');
+
+  // Optional delay, so menus, tooltips and hover states can be opened before the shot.
+  const { delay = 0 } = await chrome.storage.local.get('delay');
+  if (DELAY_OPTIONS.includes(delay) && delay > 0) {
+    await countdown(delay);
+    const [now] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+    if (now?.id !== tab.id) throw new Error('The active tab changed during the delay');
+  }
 
   await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['content.js'] });
   const info = await sendToTab(tab.id, { type: 'pageInfo' });
@@ -100,6 +127,8 @@ async function capture(mode) {
   }
 
   payload.mode = mode;
+  payload.host = hostnameOf(tab.url); // shown in History
+  payload.title = tab.title || '';
   payload.filename = makeFilename(tab.url, mode);
   const previewTab = await chrome.tabs.create({ url: chrome.runtime.getURL('preview.html') });
   pendingPreviews.set(previewTab.id, payload);

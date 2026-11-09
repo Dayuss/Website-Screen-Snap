@@ -12,9 +12,14 @@
       <img class="logo" src="icons/logo-small.svg" alt="">
       <span class="title">Website Screen Snap</span>
     </div>
-    <button class="icon-btn" id="shortcuts" title="Keyboard shortcuts" aria-label="Keyboard shortcuts">
-      <i data-icon="settings"></i>
-    </button>
+    <div class="tools">
+      <button class="icon-btn" id="history" title="History" aria-label="History">
+        <i data-icon="history"></i>
+      </button>
+      <button class="icon-btn" id="settings" title="Settings" aria-label="Settings">
+        <i data-icon="settings"></i>
+      </button>
+    </div>
   </header>
 
   <div class="banner" id="banner">
@@ -55,6 +60,16 @@
         <p class="desc">Scrolls and stitches the whole page</p>
       </span>
     </button>
+
+    <div class="delay">
+      <span class="delay-label"><i data-icon="timer"></i>Delay</span>
+      <div class="seg" role="radiogroup" aria-label="Capture delay">
+        <button role="radio" aria-checked="true" data-delay="0">Off</button>
+        <button role="radio" aria-checked="false" data-delay="3">3s</button>
+        <button role="radio" aria-checked="false" data-delay="5">5s</button>
+        <button role="radio" aria-checked="false" data-delay="10">10s</button>
+      </div>
+    </div>
 
     <div class="powered"><i data-icon="zap"></i><span>Powered by</span><a href="https://digidaw.web.id" target="_blank" rel="noopener">Digidaw Studio</a></div>
   </main>

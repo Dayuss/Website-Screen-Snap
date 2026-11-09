@@ -164,10 +164,112 @@ main {
   box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.45);
   background: repeating-conic-gradient(var(--surface-high) 0 25%, var(--surface-low) 0 50%) 0 0 / 16px 16px;
 }
-.frame img {
+.stage-wrap {
+  position: relative;
+}
+#stage {
   display: block;
   max-width: 100%;
   height: auto;
+}
+#overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* switched on while a tool is active */
+  touch-action: none;
+}
+#text-input {
+  position: absolute;
+  margin: 0;
+  padding: 0 2px;
+  min-width: 90px;
+  border: 1px dashed var(--accent);
+  border-radius: 2px;
+  background: rgba(10, 14, 23, 0.35);
+  font-family: Inter, system-ui, sans-serif;
+  font-weight: 600;
+  line-height: 1.15;
+  outline: none;
+}
+
+/* Edit toolbar */
+.toolbar {
+  position: sticky;
+  top: 48px;
+  z-index: 9;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 40px;
+  padding: 6px 12px;
+  background: var(--surface-low);
+  border-bottom: 1px solid var(--border);
+}
+.toolbar .group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.toolbar .sep {
+  width: 1px;
+  height: 18px;
+  margin: 0 4px;
+  background: var(--border);
+}
+.toolbar .spacer {
+  flex: 1;
+}
+.tool {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.tool [data-icon] {
+  width: 16px;
+  height: 16px;
+}
+.tool:hover {
+  background: var(--surface-high);
+  color: var(--text);
+}
+.tool[aria-pressed="true"] {
+  background: var(--accent);
+  color: #fff;
+}
+.tool:disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+.tool:focus-visible,
+.swatch:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.swatch {
+  width: 18px;
+  height: 18px;
+  margin: 0 3px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow: 0 0 0 1px var(--border-strong);
+  cursor: pointer;
+}
+.swatch[aria-checked="true"] {
+  border-color: var(--surface-low);
+  box-shadow: 0 0 0 2px var(--accent);
 }
 
 footer {

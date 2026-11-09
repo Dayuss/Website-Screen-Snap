@@ -15,6 +15,7 @@
 
   --border: #464555;
   --border-strong: #918fa1;
+  --track: #334155;
 
   --text: #dfe2ef;
   --text-2: #c7c4d8;
@@ -46,6 +47,7 @@
 
     --border: #e2e8f0;
     --border-strong: #cbd5e1;
+    --track: #cbd5e1;
 
     --text: #0f172a;
     --text-2: #475569;
@@ -130,6 +132,40 @@ button {
 .mono {
   font-family: var(--font-mono);
   font-feature-settings: "tnum" 1;
+}
+
+/* Segmented control (role="radiogroup" of buttons with aria-checked) */
+.seg {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-low);
+}
+.seg button {
+  min-width: 36px;
+  height: 22px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-2);
+  font: 500 11px/14px var(--font-mono);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.seg button:hover {
+  background: var(--surface-high);
+  color: var(--text);
+}
+.seg button[aria-checked="true"] {
+  background: var(--accent);
+  color: #fff;
+}
+.seg button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
 }
 
 .icon-btn {

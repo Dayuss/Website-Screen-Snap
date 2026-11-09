@@ -1,9 +1,10 @@
 const $ = (id) => document.getElementById(id);
 const copyBtn = $('copy');
 const copyLabel = $('copy-label');
-const downloadLink = $('download');
-const img = $('shot');
+const downloadBtn = $('download');
 const modeChip = $('mode');
+const editedChip = $('edited');
+const inHistoryChip = $('in-history');
 const dimsChip = $('dims');
 const scaledChip = $('scaled');
 const pdfBtn = $('pdf');
@@ -110,8 +111,7 @@ async function compose({ slices, viewportW, out }) {
     });
   }
 
-  const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
-  return { blob, canvas, width: canvas.width, height: canvas.height, scaled: fit < 1 };
+  return { canvas, width: canvas.width, height: canvas.height, scaled: fit < 1 };
 }
 
 function setState(state) {
@@ -137,8 +137,71 @@ function flashCopy(state, label) {
   }, 1600);
 }
 
-(async () => {
-  setState('loading');
+const toBlob = (canvas, mime, quality) => new Promise((resolve) => canvas.toBlob(resolve, mime, quality));
+
+const THUMB_W = 320;
+const THUMB_H = 200;
+
+// Thumbnail for the history grid: fit to width and keep the top of tall pages.
+function makeThumb(canvas) {
+  const thumb = document.createElement('canvas');
+  thumb.width = THUMB_W;
+  thumb.height = THUMB_H;
+  const ctx = thumb.getContext('2d');
+  ctx.fillStyle = '#e2e8f0';
+  ctx.fillRect(0, 0, THUMB_W, THUMB_H);
+  const scale = THUMB_W / canvas.width;
+  const srcH = Math.min(canvas.height, THUMB_H / scale);
+  ctx.drawImage(canvas, 0, 0, canvas.width, srcH, 0, 0, THUMB_W, srcH * scale);
+  return toBlob(thumb, 'image/jpeg', 0.8);
+}
+
+async function blobToCanvas(blob) {
+  const bitmap = await createImageBitmap(blob);
+  const canvas = document.createElement('canvas');
+  canvas.width = bitmap.width;
+  canvas.height = bitmap.height;
+  canvas.getContext('2d').drawImage(bitmap, 0, 0);
+  bitmap.close();
+  return canvas;
+}
+
+async function saveToHistory(base, meta) {
+  const id = crypto.randomUUID();
+  const [blob, thumb] = await Promise.all([toBlob(base, 'image/png'), makeThumb(base)]);
+  if (!blob) throw new Error('Could not encode the capture for history');
+  await historyAdd({
+    id,
+    createdAt: Date.now(),
+    mode: meta.mode,
+    host: meta.host || '',
+    title: meta.title || '',
+    filename: meta.filename,
+    width: base.width,
+    height: base.height,
+    outW: meta.outW,
+    outH: meta.outH,
+    base: blob,
+    thumb,
+    ops: [],
+    crop: null,
+  });
+  return id;
+}
+
+// A capture comes either from the service worker (fresh) or from History (?history=<id>).
+async function loadCapture() {
+  const historyId = new URLSearchParams(location.search).get('history');
+  if (historyId) {
+    const entry = await historyGet(historyId);
+    if (!entry) throw new Error('This capture is no longer in history.');
+    return {
+      base: await blobToCanvas(entry.base),
+      scaled: false,
+      entry,
+      meta: { mode: entry.mode, filename: entry.filename, outW: entry.outW, outH: entry.outH },
+    };
+  }
 
   // Background stores the capture for this tab before/while this page loads, so retry briefly.
   let payload = null;
@@ -146,26 +209,105 @@ function flashCopy(state, label) {
     payload = await chrome.runtime.sendMessage({ type: 'preview-ready' });
     if (!payload) await new Promise((r) => setTimeout(r, 100));
   }
-  if (!payload) {
-    showError('No capture found', 'Take a screenshot from the Website Screen Snap popup first.');
-    return;
-  }
+  if (!payload) return null;
+
+  const { canvas, scaled } = await compose(payload);
+  return {
+    base: canvas,
+    scaled,
+    entry: null,
+    meta: {
+      mode: payload.mode,
+      filename: payload.filename,
+      outW: payload.out.w,
+      outH: payload.out.h,
+      host: payload.host,
+      title: payload.title,
+    },
+  };
+}
+
+(async () => {
+  setState('loading');
 
   try {
-    const { blob, canvas, width, height, scaled } = await compose(payload);
-    const url = URL.createObjectURL(blob);
+    const capture = await loadCapture();
+    if (!capture) {
+      showError('No capture found', 'Take a screenshot from the Website Screen Snap popup first, or open one from History.');
+      return;
+    }
+    const { base, scaled, entry, meta } = capture;
+    const settings = await loadSettings();
+    const fmt = FORMATS[settings.format];
+    const pxPerCss = base.width / meta.outW; // device px per CSS px, for editor sizing and PDF page size
+    const fileBase = (meta.filename || 'screenshot.png').replace(/\.png$/i, '');
 
-    modeChip.textContent = MODE_LABEL[payload.mode] || 'Screenshot';
+    const editor = createEditor({
+      base,
+      stage: $('stage'),
+      overlay: $('overlay'),
+      textInput: $('text-input'),
+      unit: pxPerCss,
+    });
+    bindToolbar(editor);
+
+    const showSize = ({ width, height, dirty }) => {
+      dimsChip.textContent = `${Math.round(width)} × ${Math.round(height)} px · ${fmt.label}`;
+      editedChip.hidden = !dirty;
+    };
+    editor.subscribe(showSize);
+    if (entry) editor.loadState({ ops: entry.ops, crop: entry.crop });
+    else showSize({ width: base.width, height: base.height, dirty: false });
+
+    // ---- history: save fresh captures, and keep saving edits to the entry ----
+    let entryId = entry ? entry.id : null;
+    let ready = Promise.resolve();
+    if (entry) {
+      inHistoryChip.hidden = false;
+    } else if (settings.saveHistory) {
+      ready = saveToHistory(base, meta)
+        .then((id) => {
+          entryId = id;
+          inHistoryChip.hidden = false;
+        })
+        .catch((err) => console.error('History save failed', err));
+    }
+    let lastSaved = JSON.stringify(entry ? { ops: entry.ops, crop: entry.crop } : { ops: [], crop: null });
+    let persistTimer;
+    editor.subscribe(() => {
+      if (!entry && !settings.saveHistory) return;
+      clearTimeout(persistTimer);
+      persistTimer = setTimeout(async () => {
+        const state = editor.exportState();
+        const json = JSON.stringify(state);
+        if (json === lastSaved) return; // selection changes etc. are not edits
+        await ready;
+        if (!entryId) return;
+        lastSaved = json;
+        historyUpdate(entryId, state).catch((err) => console.error('History update failed', err));
+      }, 400);
+    });
+
+    modeChip.textContent = MODE_LABEL[meta.mode] || 'Screenshot';
     modeChip.hidden = false;
-    dimsChip.textContent = `${width} × ${height} px · PNG`;
     dimsChip.hidden = false;
     scaledChip.hidden = !scaled;
-
-    img.src = url;
-    downloadLink.href = url;
-    downloadLink.download = payload.filename || 'screenshot.png';
-    downloadLink.removeAttribute('aria-disabled');
+    $('dl-label').textContent = `Download ${fmt.label}`;
+    $('toolbar').hidden = false;
     setState('result');
+
+    // Every output reads the editor at click time, so edits are always included.
+    const download = async () => {
+      const blob = await toBlob(editor.getOutput(), fmt.mime, settings.quality / 100);
+      if (!blob) throw new Error(`This browser could not encode ${fmt.label}`);
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${fileBase}.${fmt.ext}`;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(link.href), 10000);
+    };
+    downloadBtn.disabled = false;
+    downloadBtn.addEventListener('click', () => download().catch((err) => console.error(err)));
 
     pdfBtn.disabled = false;
     pdfBtn.addEventListener('click', async () => {
@@ -174,10 +316,11 @@ function flashCopy(state, label) {
       let label = 'Download PDF';
       try {
         // Page is sized to the screenshot in CSS px, so retina captures stay sharp.
-        const pdf = await buildPdf(canvas, payload.out.w, payload.out.h);
+        const out = editor.getOutput();
+        const pdf = await buildPdf(out, out.width / pxPerCss, out.height / pxPerCss);
         const link = document.createElement('a');
         link.href = URL.createObjectURL(pdf);
-        link.download = (payload.filename || 'screenshot.png').replace(/\.png$/i, '') + '.pdf';
+        link.download = `${fileBase}.pdf`;
         link.click();
         setTimeout(() => URL.revokeObjectURL(link.href), 10000);
       } catch (err) {
@@ -190,18 +333,24 @@ function flashCopy(state, label) {
       }
     });
 
-    copyBtn.disabled = false;
-    copyBtn.addEventListener('click', async () => {
+    const copyImage = async () => {
       try {
-        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+        // A promise keeps the click's user activation alive while the PNG is encoded.
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': toBlob(editor.getOutput(), 'image/png') })]);
         flashCopy('ok', 'Copied!');
       } catch (err) {
         console.error(err);
         flashCopy('fail', 'Copy failed');
       }
-    });
+    };
+    copyBtn.disabled = false;
+    copyBtn.addEventListener('click', copyImage);
+
+    // Auto actions are for fresh captures only; reopening from History must not copy or download again.
+    if (!entry && settings.autoCopy) copyImage();
+    if (!entry && settings.autoDownload) download().catch((err) => console.error(err));
   } catch (err) {
     console.error(err);
-    showError("Couldn't build the screenshot", err.message);
+    showError("Couldn't open the screenshot", err.message);
   }
 })();

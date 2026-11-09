@@ -17,18 +17,44 @@ async function isRestricted() {
   }
 }
 
+// Delay (seconds) is persisted; the service worker reads it from storage, so shortcuts honour it too.
+const DELAYS = [0, 3, 5, 10];
+const segButtons = document.querySelectorAll('.seg button');
+let saving = Promise.resolve();
+
+function showDelay(value) {
+  segButtons.forEach((b) => b.setAttribute('aria-checked', String(Number(b.dataset.delay) === value)));
+}
+
+segButtons.forEach((b) => {
+  b.addEventListener('click', () => {
+    const value = Number(b.dataset.delay);
+    showDelay(value);
+    saving = chrome.storage.local.set({ delay: value });
+  });
+});
+
+chrome.storage.local.get({ delay: 0 }).then(({ delay }) => showDelay(DELAYS.includes(delay) ? delay : 0));
+
 cards.forEach((card) => {
   card.addEventListener('click', () => {
-    // Background returns without responding, so this rejects right away; the message is already delivered.
-    chrome.runtime
-      .sendMessage({ type: 'capture', mode: card.dataset.mode })
+    // Make sure the chosen delay is stored before the worker reads it.
+    saving
+      .catch(() => {})
+      .then(() => chrome.runtime.sendMessage({ type: 'capture', mode: card.dataset.mode }))
+      // Background returns without responding, so this rejects right away; the message is already delivered.
       .catch(() => {})
       .finally(() => window.close());
   });
 });
 
-document.getElementById('shortcuts').addEventListener('click', () => {
-  chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
+document.getElementById('history').addEventListener('click', () => {
+  chrome.tabs.create({ url: chrome.runtime.getURL('history.html') });
+  window.close();
+});
+
+document.getElementById('settings').addEventListener('click', () => {
+  chrome.runtime.openOptionsPage();
   window.close();
 });
 

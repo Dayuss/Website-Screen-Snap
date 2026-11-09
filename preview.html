@@ -17,6 +17,8 @@
         <span class="chip accent" id="mode" hidden></span>
         <span class="chip" id="dims" hidden></span>
         <span class="chip warn" id="scaled" hidden>scaled to fit browser limits</span>
+        <span class="chip accent" id="edited" hidden>edited</span>
+        <span class="chip" id="in-history" hidden title="Saved on this device. Open it again from History.">in history</span>
       </div>
     </div>
     <div class="actions">
@@ -27,11 +29,45 @@
       <button class="btn" id="pdf" disabled>
         <i data-icon="file"></i><span id="pdf-label">Download PDF</span>
       </button>
-      <a class="btn primary" id="download" aria-disabled="true">
-        <i data-icon="download"></i><span>Download PNG</span>
-      </a>
+      <button class="btn primary" id="download" disabled>
+        <i data-icon="download"></i><span id="dl-label">Download PNG</span>
+      </button>
     </div>
   </header>
+
+  <div class="toolbar" id="toolbar" hidden>
+    <div class="group" role="toolbar" aria-label="Edit tools">
+      <button class="tool" data-tool="select" aria-pressed="false" title="Select and move (V)" aria-label="Select and move"><i data-icon="pointer"></i></button>
+      <span class="sep"></span>
+      <button class="tool" data-tool="crop" aria-pressed="false" title="Crop (C)" aria-label="Crop"><i data-icon="crop"></i></button>
+      <button class="tool" data-tool="blur" aria-pressed="false" title="Blur / pixelate (B)" aria-label="Blur"><i data-icon="pixelate"></i></button>
+      <button class="tool" data-tool="rect" aria-pressed="false" title="Rectangle (R)" aria-label="Rectangle"><i data-icon="square"></i></button>
+      <button class="tool" data-tool="arrow" aria-pressed="false" title="Arrow (A)" aria-label="Arrow"><i data-icon="arrow"></i></button>
+      <button class="tool" data-tool="text" aria-pressed="false" title="Text (T)" aria-label="Text"><i data-icon="type"></i></button>
+      <button class="tool" data-tool="step" aria-pressed="false" title="Numbered step (N)" aria-label="Numbered step"><i data-icon="step"></i></button>
+    </div>
+    <span class="sep"></span>
+    <div class="group" role="radiogroup" aria-label="Color">
+      <button class="swatch" role="radio" aria-checked="true" data-color="#ef4444" style="--c:#ef4444" title="Red" aria-label="Red"></button>
+      <button class="swatch" role="radio" aria-checked="false" data-color="#4f46e5" style="--c:#4f46e5" title="Indigo" aria-label="Indigo"></button>
+      <button class="swatch" role="radio" aria-checked="false" data-color="#f59e0b" style="--c:#f59e0b" title="Amber" aria-label="Amber"></button>
+      <button class="swatch" role="radio" aria-checked="false" data-color="#10b981" style="--c:#10b981" title="Green" aria-label="Green"></button>
+      <button class="swatch" role="radio" aria-checked="false" data-color="#ffffff" style="--c:#ffffff" title="White" aria-label="White"></button>
+      <button class="swatch" role="radio" aria-checked="false" data-color="#111827" style="--c:#111827" title="Black" aria-label="Black"></button>
+    </div>
+    <span class="sep"></span>
+    <div class="seg" id="size" role="radiogroup" aria-label="Size">
+      <button role="radio" aria-checked="false" data-size="S" title="Small">S</button>
+      <button role="radio" aria-checked="true" data-size="M" title="Medium">M</button>
+      <button role="radio" aria-checked="false" data-size="L" title="Large">L</button>
+    </div>
+    <span class="spacer"></span>
+    <div class="group">
+      <button class="tool" id="delete" disabled title="Delete selected (Del)" aria-label="Delete selected"><i data-icon="trash"></i></button>
+      <button class="tool" id="undo" disabled title="Undo (Ctrl/Cmd+Z)" aria-label="Undo"><i data-icon="undo"></i></button>
+      <button class="tool" id="redo" disabled title="Redo (Ctrl/Cmd+Shift+Z)" aria-label="Redo"><i data-icon="redo"></i></button>
+    </div>
+  </div>
 
   <main>
     <section class="state" id="loading">
@@ -46,7 +82,11 @@
     </section>
 
     <figure class="frame" id="result" hidden>
-      <img id="shot" alt="Screenshot">
+      <div class="stage-wrap">
+        <canvas id="stage" aria-label="Screenshot"></canvas>
+        <canvas id="overlay"></canvas>
+        <input id="text-input" type="text" hidden aria-label="Annotation text" autocomplete="off" spellcheck="false">
+      </div>
     </figure>
   </main>
 
@@ -56,6 +96,9 @@
 
   <script src="icons.js"></script>
   <script src="pdf.js"></script>
+  <script src="settings.js"></script>
+  <script src="history-db.js"></script>
+  <script src="editor.js"></script>
   <script src="preview.js"></script>
 </body>
 </html>

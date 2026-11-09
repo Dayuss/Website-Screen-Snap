@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Website Screen Snap Settings</title>
+  <link rel="icon" href="icons/icon-32.png">
+  <link rel="stylesheet" href="ui.css">
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <img class="logo" src="icons/logo-small.svg" alt="">
+      <span class="title">Website Screen Snap</span>
+      <span class="chip">Settings</span>
+    </div>
+    <span class="saved" id="saved" aria-live="polite"></span>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2>Output</h2>
+      <div class="row">
+        <div class="text">
+          <strong>Image format</strong>
+          <p>Used by the Download button in the preview. PDF export is unaffected.</p>
+        </div>
+        <div class="seg" id="format" role="radiogroup" aria-label="Image format">
+          <button role="radio" aria-checked="true" data-format="png">PNG</button>
+          <button role="radio" aria-checked="false" data-format="jpeg">JPG</button>
+          <button role="radio" aria-checked="false" data-format="webp">WebP</button>
+        </div>
+      </div>
+      <div class="row" id="quality-row" hidden>
+        <div class="text">
+          <strong>Quality</strong>
+          <p>JPG and WebP only. Higher is sharper and a larger file.</p>
+        </div>
+        <div class="range">
+          <input type="range" id="quality" min="50" max="100" step="1" aria-label="Quality">
+          <output class="mono" id="quality-value"></output>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>After capture</h2>
+      <div class="row">
+        <div class="text">
+          <strong>Copy to clipboard automatically</strong>
+          <p>Always copies a PNG, whatever the format above.</p>
+        </div>
+        <button class="switch" id="autoCopy" role="switch" aria-checked="false" aria-label="Copy to clipboard automatically"></button>
+      </div>
+      <div class="row">
+        <div class="text">
+          <strong>Download automatically</strong>
+          <p>Saves the file as soon as the preview opens.</p>
+        </div>
+        <button class="switch" id="autoDownload" role="switch" aria-checked="false" aria-label="Download automatically"></button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>History</h2>
+      <div class="row">
+        <div class="text">
+          <strong>Save capture history</strong>
+          <p>Keeps your last 10 captures, with their edits, on this device so you can reopen them. Nothing leaves your browser.</p>
+        </div>
+        <button class="switch" id="saveHistory" role="switch" aria-checked="true" aria-label="Save capture history"></button>
+      </div>
+      <div class="row">
+        <div class="text">
+          <strong>Saved captures</strong>
+          <p id="history-count">Checking…</p>
+        </div>
+        <div class="btn-row">
+          <button class="btn" id="open-history"><i data-icon="history"></i><span>Open history</span></button>
+          <button class="btn" id="clear-history"><i data-icon="trash"></i><span>Clear</span></button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Shortcuts</h2>
+      <div class="row">
+        <div class="text">
+          <strong>Keyboard shortcuts</strong>
+          <ul class="keys" id="keys"></ul>
+        </div>
+        <button class="btn" id="customize"><i data-icon="keyboard"></i><span>Customize</span></button>
+      </div>
+      <div class="row">
+        <div class="text">
+          <strong>Capture delay</strong>
+          <p>Choose Off, 3s, 5s or 10s in the toolbar popup. It also applies to the shortcuts.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>Website Screen Snap <span class="mono" id="version"></span> · Powered by <a href="https://digidaw.web.id" target="_blank" rel="noopener">Digidaw Studio</a></span>
+  </footer>
+
+  <script src="icons.js"></script>
+  <script src="settings.js"></script>
+  <script src="history-db.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>
