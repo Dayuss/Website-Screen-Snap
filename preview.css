@@ -1,0 +1,191 @@
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--canvas);
+}
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: 48px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+header .logo {
+  width: 24px;
+  height: 24px;
+}
+
+.chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 4px;
+  min-width: 0;
+}
+.chip {
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface-high);
+  color: var(--text-2);
+  font: 500 10px/12px var(--font-mono);
+  white-space: nowrap;
+}
+.chip.accent {
+  color: var(--accent-text);
+}
+.chip.warn {
+  color: var(--warn-text);
+  border-color: var(--warn-border);
+  background: var(--warn-bg);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface-low);
+  color: var(--text);
+  font: 500 11px/14px var(--font-sans);
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s, border-color 0.15s;
+}
+.btn [data-icon] {
+  width: 14px;
+  height: 14px;
+}
+.btn:hover {
+  background: var(--surface-high);
+}
+.btn:active {
+  transform: scale(0.98);
+}
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.btn.primary:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: 0.4;
+  pointer-events: none;
+}
+.btn[data-state="ok"] {
+  color: var(--success);
+  border-color: var(--success);
+}
+.btn[data-state="fail"] {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+.btn .i-ok,
+.btn[data-state="ok"] .i-copy {
+  display: none;
+}
+.btn[data-state="ok"] .i-ok {
+  display: inline-flex;
+}
+
+main {
+  flex: 1;
+  padding: 24px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Loading + error states */
+.state {
+  margin: 12vh auto 0;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  color: var(--text-2);
+}
+.state strong {
+  font: 600 14px/20px var(--font-sans);
+  color: var(--text);
+}
+.state p {
+  margin: 0;
+}
+.state [data-icon] {
+  width: 24px;
+  height: 24px;
+  color: var(--danger);
+}
+.spinner {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Result */
+.frame {
+  margin: 0;
+  max-width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.45);
+  background: repeating-conic-gradient(var(--surface-high) 0 25%, var(--surface-low) 0 50%) 0 0 / 16px 16px;
+}
+.frame img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+footer {
+  height: 32px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface-low);
+  border-top: 1px solid var(--border);
+  color: var(--text-2);
+  font: 500 11px/14px var(--font-sans);
+}
+footer a {
+  color: var(--accent-text);
+  font-weight: 600;
+  text-decoration: none;
+}
+footer a:hover {
+  text-decoration: underline;
+}

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Website Screen Snap Preview</title>
+  <link rel="icon" href="icons/icon-32.png">
+  <link rel="stylesheet" href="ui.css">
+  <link rel="stylesheet" href="preview.css">
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <img class="logo" src="icons/logo-small.svg" alt="">
+      <span class="title">Website Screen Snap</span>
+      <div class="chips">
+        <span class="chip accent" id="mode" hidden></span>
+        <span class="chip" id="dims" hidden></span>
+        <span class="chip warn" id="scaled" hidden>scaled to fit browser limits</span>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="copy" disabled>
+        <i data-icon="copy" class="i-copy"></i><i data-icon="check" class="i-ok"></i>
+        <span id="copy-label">Copy to Clipboard</span>
+      </button>
+      <button class="btn" id="pdf" disabled>
+        <i data-icon="file"></i><span id="pdf-label">Download PDF</span>
+      </button>
+      <a class="btn primary" id="download" aria-disabled="true">
+        <i data-icon="download"></i><span>Download PNG</span>
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <section class="state" id="loading">
+      <div class="spinner"></div>
+      <strong>Preparing screenshot…</strong>
+    </section>
+
+    <section class="state" id="error" hidden>
+      <i data-icon="alert"></i>
+      <strong id="error-title"></strong>
+      <p id="error-detail"></p>
+    </section>
+
+    <figure class="frame" id="result" hidden>
+      <img id="shot" alt="Screenshot">
+    </figure>
+  </main>
+
+  <footer>
+    <span>Website Screen Snap · Powered by <a href="https://digidaw.web.id" target="_blank" rel="noopener">Digidaw Studio</a></span>
+  </footer>
+
+  <script src="icons.js"></script>
+  <script src="pdf.js"></script>
+  <script src="preview.js"></script>
+</body>
+</html>

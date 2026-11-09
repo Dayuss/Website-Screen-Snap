@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Website Screen Snap</title>
+  <link rel="stylesheet" href="ui.css">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <img class="logo" src="icons/logo-small.svg" alt="">
+      <span class="title">Website Screen Snap</span>
+    </div>
+    <button class="icon-btn" id="shortcuts" title="Keyboard shortcuts" aria-label="Keyboard shortcuts">
+      <i data-icon="settings"></i>
+    </button>
+  </header>
+
+  <div class="banner" id="banner">
+    <i data-icon="lock"></i>
+    <div>
+      <strong>Screenshots aren't available on this page.</strong>
+      <p>Chromium restricts extensions on internal URLs (<code>chrome://*</code>, <code>edge://*</code>).</p>
+    </div>
+  </div>
+
+  <main>
+    <button class="card" data-mode="visible">
+      <span class="ico"><i data-icon="monitor"></i></span>
+      <span class="body">
+        <span class="row">
+          <span class="name">Visible area</span>
+          <kbd class="kbd" data-command="capture-visible" hidden></kbd>
+        </span>
+        <p class="desc">What's on screen right now</p>
+      </span>
+    </button>
+
+    <button class="card primary" data-mode="selected">
+      <span class="ico"><i data-icon="crop"></i></span>
+      <span class="body">
+        <span class="row">
+          <span class="name">Selected area</span>
+          <kbd class="kbd" data-command="capture-selected" hidden></kbd>
+        </span>
+        <p class="desc">Drag on the page to pick a region</p>
+      </span>
+    </button>
+
+    <button class="card" data-mode="full">
+      <span class="ico"><i data-icon="layers"></i></span>
+      <span class="body">
+        <span class="row"><span class="name">Full page</span></span>
+        <p class="desc">Scrolls and stitches the whole page</p>
+      </span>
+    </button>
+
+    <div class="powered"><i data-icon="zap"></i><span>Powered by</span><a href="https://digidaw.web.id" target="_blank" rel="noopener">Digidaw Studio</a></div>
+  </main>
+
+  <footer class="footer-default">
+    <span class="hint"><i data-icon="keyboard"></i>Esc cancels a selection</span>
+    <span class="meta"><span id="version"></span></span>
+  </footer>
+
+  <footer class="footer-restricted">
+    <button class="link" id="docs"><i data-icon="help"></i>Learn more about extension permissions</button>
+    <span class="meta"><i data-icon="external"></i></span>
+  </footer>
+
+  <script src="icons.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

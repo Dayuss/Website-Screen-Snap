@@ -1,0 +1,156 @@
+/* Shared design tokens + primitives (from design/DESIGN.md). Dark-first, light via prefers-color-scheme. */
+:root {
+  color-scheme: dark;
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --canvas: #0a0e17;
+  --surface: #1c1f29;
+  --surface-low: #181b25;
+  --surface-high: #262a34;
+  --surface-highest: #31353f;
+  --selected-bg: #262a34;
+  --selected-hover: #31353f;
+  --kbd-bg: #0a0e17;
+
+  --border: #464555;
+  --border-strong: #918fa1;
+
+  --text: #dfe2ef;
+  --text-2: #c7c4d8;
+  --text-3: #918fa1;
+
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+  --accent-text: #c3c0ff;
+  --cyan: #4cd7f6;
+  --success: #10b981;
+  --danger: #ffb4ab;
+
+  --warn-text: #ffb695;
+  --warn-bg: rgba(164, 65, 0, 0.2);
+  --warn-border: rgba(255, 182, 149, 0.3);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+    --canvas: #f1f5f9;
+    --surface: #ffffff;
+    --surface-low: #f8fafc;
+    --surface-high: #f1f5f9;
+    --surface-highest: #e2e8f0;
+    --selected-bg: #eef2ff;
+    --selected-hover: #e0e7ff;
+    --kbd-bg: #ffffff;
+
+    --border: #e2e8f0;
+    --border-strong: #cbd5e1;
+
+    --text: #0f172a;
+    --text-2: #475569;
+    --text-3: #64748b;
+
+    --accent-text: #4f46e5;
+    --cyan: #0891b2;
+    --success: #059669;
+    --danger: #dc2626;
+
+    --warn-text: #92400e;
+    --warn-bg: rgba(245, 158, 11, 0.12);
+    --warn-border: rgba(245, 158, 11, 0.4);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+}
+body {
+  font: 400 12px/16px var(--font-sans);
+  color: var(--text);
+  background: var(--surface);
+  -webkit-font-smoothing: antialiased;
+}
+[hidden] {
+  display: none !important;
+}
+button {
+  font: inherit;
+  color: inherit;
+}
+
+/* Icons are injected by icons.js as inline SVG. */
+[data-icon] {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+[data-icon] svg {
+  width: 100%;
+  height: 100%;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.logo {
+  display: block;
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+.title {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.kbd {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--kbd-bg);
+  color: var(--text-2);
+  font: 500 10px/12px var(--font-mono);
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-feature-settings: "tnum" 1;
+}
+
+.icon-btn {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.icon-btn:hover {
+  background: var(--surface-high);
+  color: var(--text);
+}
+.icon-btn:focus-visible,
+.btn:focus-visible,
+.link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
