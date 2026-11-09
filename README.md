@@ -1,220 +1,222 @@
 # Website Screen Snap
 
-Extension Chrome (Manifest V3) untuk screenshot website: **visible area**, **selected area**, dan **full page**. Hasilnya langsung bisa diedit (crop, blur, panah, teks, nomor langkah), lalu disalin, diunduh sebagai PNG/JPG/WebP, atau diekspor ke PDF.
+A Chrome (Manifest V3) extension for website screenshots: **visible area**, **selected area**, and **full page**. Captures open straight into an editor (crop, blur, arrows, text, numbered steps), then you can copy them, download as PNG/JPG/WebP, or export to PDF.
 
-Dibuat oleh [Digidaw Studio](https://digidaw.web.id). Versi saat ini: **0.1.0**.
+Made by [Digidaw Studio](https://digidaw.web.id). Current version: **0.1.0**.
+
+🇮🇩 Bahasa Indonesia: [README.id.md](README.id.md)
 
 <p align="center">
-  <img src="image/popup.png" alt="Popup Website Screen Snap" width="340">
+  <img src="image/popup.png" alt="Website Screen Snap popup" width="340">
 </p>
 
 ---
 
-## Latar belakang
+## Background
 
-Screenshot sering jadi pekerjaan dua tahap: ambil gambarnya, lalu buka aplikasi lain untuk memberi tanda, menutup data sensitif, atau memotong. Untuk halaman panjang ada tahap tambahan: menyambung beberapa tangkapan layar secara manual.
+Taking a screenshot is often a two-step job: capture the image, then open another app to annotate it, hide sensitive data, or crop. Long pages add a third step: stitching several screenshots together by hand.
 
-Website Screen Snap menyatukan alur itu di dalam browser:
+Website Screen Snap brings that whole flow into the browser:
 
-1. **Ambil** halaman dengan tiga mode (yang terlihat, area yang dipilih, atau seluruh halaman yang di-scroll dan disambung otomatis).
-2. **Edit** di tab preview: crop, pixelate area sensitif, tambahkan panah, kotak, teks, dan penanda bernomor.
-3. **Keluarkan** hasilnya: salin ke clipboard, unduh sebagai gambar, atau ekspor ke PDF.
+1. **Capture** a page in three modes (what's visible, a selected area, or the entire page, auto-scrolled and stitched together).
+2. **Edit** in the preview tab: crop, pixelate sensitive areas, add arrows, boxes, text, and numbered markers.
+3. **Output** the result: copy to clipboard, download as an image, or export to PDF.
 
-Beberapa prinsip yang dipegang sejak awal:
+A few principles held from the start:
 
-- **Ringan.** JavaScript biasa, tanpa build step dan tanpa dependency. Generator PDF-nya pun ditulis sendiri (sekitar 90 baris).
-- **Izin seminimal mungkin.** Tidak meminta akses ke semua situs (tanpa host permission). Extension hanya bekerja di tab yang kamu klik atau yang kamu beri shortcut.
-- **Privasi.** Tidak ada server dan tidak ada yang dikirim lewat jaringan. Gambar, editan, dan riwayat hanya tersimpan di browser kamu.
-- **Non-destruktif.** Gambar asli tidak pernah diubah. Editan disimpan sebagai lapisan di atasnya, jadi selalu bisa di-undo, digeser, atau dihapus.
+- **Lightweight.** Plain JavaScript, no build step, no dependencies. Even the PDF generator is hand-written (about 90 lines).
+- **Minimal permissions.** No access to all sites (no host permissions). The extension only works on the tab you click or trigger with a shortcut.
+- **Privacy.** No server, nothing sent over the network. Images, edits, and history stay in your browser.
+- **Non-destructive.** The original image is never modified. Edits are stored as layers on top, so they can always be undone, moved, or removed.
 
 ---
 
-## Fitur
+## Features
 
-### Tiga mode capture
+### Three capture modes
 
-| Mode | Yang diambil | Cara memicu |
+| Mode | What it captures | How to trigger |
 |---|---|---|
-| **Visible area** | Persis yang sedang terlihat di layar | Kartu di popup, atau `Alt+Shift+V` (`⌥⇧V` di Mac) |
-| **Selected area** | Persegi yang kamu seret di halaman. `Esc` untuk batal | Kartu di popup, atau `Alt+Shift+S` (`⌥⇧S` di Mac) |
-| **Full page** | Seluruh halaman: di-scroll otomatis lalu disambung jadi satu gambar | Kartu di popup |
+| **Visible area** | Exactly what's currently on screen | Popup card, or `Alt+Shift+V` (`⌥⇧V` on Mac) |
+| **Selected area** | A rectangle you drag on the page. `Esc` to cancel | Popup card, or `Alt+Shift+S` (`⌥⇧S` on Mac) |
+| **Full page** | The whole page: auto-scrolled and stitched into one image | Popup card |
 
-Ada juga **delay timer** (Off / 3s / 5s / 10s) di popup, supaya menu dropdown, tooltip, atau state hover sempat dibuka sebelum diambil. Hitung mundurnya tampil di badge icon extension, bukan di halaman, jadi tidak ikut ke-capture.
+There's also a **delay timer** (Off / 3s / 5s / 10s) in the popup, so dropdown menus, tooltips, or hover states can be opened before the capture. The countdown shows on the extension icon badge, not on the page, so it doesn't end up in the capture.
 
-### Editor di tab preview
+### Editor in the preview tab
 
-Setiap capture terbuka di tab preview dengan toolbar editor.
+Every capture opens in a preview tab with an editor toolbar.
 
 <p align="center">
-  <img src="image/editor.png" alt="Editor di tab preview" width="900">
+  <img src="image/editor.png" alt="Editor in the preview tab" width="900">
 </p>
 
-| Tool | Tombol | Fungsi |
+| Tool | Key | Function |
 |---|---|---|
-| Select | `V` | Pilih, geser, ganti warna, atau hapus anotasi yang sudah dibuat |
-| Crop | `C` | Seret area yang dipertahankan; sisanya tidak ikut ke hasil |
-| Blur | `B` | Pixelate area yang diseret sehingga teks di bawahnya tidak terbaca |
-| Rectangle | `R` | Kotak outline |
-| Arrow | `A` | Panah dari ekor ke kepala |
-| Text | `T` | Klik, ketik, tekan Enter |
-| Step | `N` | Penanda bernomor; nomornya naik dan menyesuaikan otomatis saat ada yang dihapus |
+| Select | `V` | Select, move, recolor, or delete existing annotations |
+| Crop | `C` | Drag the area to keep; the rest is excluded from the result |
+| Blur | `B` | Pixelate the dragged area so the text underneath is unreadable |
+| Rectangle | `R` | Outline box |
+| Arrow | `A` | Arrow from tail to head |
+| Text | `T` | Click, type, press Enter |
+| Step | `N` | Numbered marker; numbers increment and renumber automatically when one is deleted |
 
-Pilih warna (merah, indigo, kuning, hijau, putih, hitam) dan ukuran (S/M/L) di toolbar. **Undo/Redo**: `Ctrl/Cmd+Z` dan `Ctrl/Cmd+Shift+Z`. **Hapus** anotasi terpilih: `Delete`. `Esc` melepas tool yang aktif.
+Choose a color (red, indigo, yellow, green, white, black) and size (S/M/L) in the toolbar. **Undo/Redo**: `Ctrl/Cmd+Z` and `Ctrl/Cmd+Shift+Z`. **Delete** the selected annotation: `Delete`. `Esc` releases the active tool.
 
-> **Blur itu pixelate** dan permanen setelah diekspor. Untuk data sensitif, tutup area yang sedikit lebih besar dari teksnya.
+> **Blur is pixelation** and permanent once exported. For sensitive data, cover an area slightly larger than the text.
 
-### Keluaran
+### Output
 
-- **Copy to Clipboard**: selalu PNG, apa pun format yang dipilih.
-- **Download PNG / JPG / WebP**: sesuai pengaturan format (dan kualitas untuk JPG/WebP).
-- **Download PDF**: satu halaman yang ukurannya mengikuti screenshot, jadi halaman panjang tidak terpotong. Isinya gambar saja, jadi teksnya tidak bisa diseleksi atau dicari.
+- **Copy to Clipboard**: always PNG, regardless of the selected format.
+- **Download PNG / JPG / WebP**: per the format setting (and quality for JPG/WebP).
+- **Download PDF**: a single page sized to the screenshot, so long pages aren't cut off. It contains the image only, so text can't be selected or searched.
 
-Semua keluaran sudah memuat editan terbaru.
+All outputs include your latest edits.
 
-### Riwayat
+### History
 
-Last 10 capture disimpan beserta editannya, supaya bisa dibuka lagi dan diedit walaupun tab preview sudah ditutup. Buka lewat ikon jam di popup.
-
-<p align="center">
-  <img src="image/history.png" alt="Halaman riwayat capture" width="900">
-</p>
-
-Riwayat bisa dimatikan di Settings, dan bisa dihapus satu per satu atau semuanya. Datanya tersimpan di IndexedDB browser kamu dan tidak dikirim ke mana pun.
-
-### Pengaturan
-
-Buka lewat ikon gear di popup. Perubahan tersimpan otomatis.
+The last 10 captures are saved along with their edits, so you can reopen and keep editing even after the preview tab is closed. Open it with the clock icon in the popup.
 
 <p align="center">
-  <img src="image/setting.png" alt="Halaman pengaturan" width="900">
+  <img src="image/history.png" alt="Capture history page" width="900">
 </p>
 
-- **Image format**: PNG, JPG, atau WebP, plus slider kualitas (50 sampai 100%) untuk JPG dan WebP.
-- **Copy to clipboard automatically** dan **Download automatically**: dijalankan begitu preview dari capture baru terbuka. Membuka ulang dari riwayat tidak memicunya.
-- **Save capture history**: hidupkan atau matikan riwayat.
-- **Shortcuts**: menampilkan tombol yang benar-benar terpasang, dengan tombol untuk mengubahnya.
+History can be turned off in Settings, and entries can be deleted one by one or all at once. Data is stored in your browser's IndexedDB and is not sent anywhere.
+
+### Settings
+
+Open with the gear icon in the popup. Changes are saved automatically.
+
+<p align="center">
+  <img src="image/setting.png" alt="Settings page" width="900">
+</p>
+
+- **Image format**: PNG, JPG, or WebP, plus a quality slider (50 to 100%) for JPG and WebP.
+- **Copy to clipboard automatically** and **Download automatically**: run as soon as the preview of a new capture opens. Reopening from history does not trigger them.
+- **Save capture history**: turn history on or off.
+- **Shortcuts**: shows the keys that are actually registered, with a button to change them.
 
 ---
 
-## Cara pasang
+## Installation
 
-Extension ini belum ada di Chrome Web Store, jadi dipasang dari foldernya (mode developer). Tidak perlu build atau install apa pun.
+This extension isn't on the Chrome Web Store yet, so it's installed from its folder (developer mode). No build or install step is needed.
 
-**Syarat:** Chrome atau browser berbasis Chromium yang mendukung Manifest V3 (Brave, Edge, dan sejenisnya), versi yang masih diperbarui.
+**Requirements:** Chrome or a Chromium-based browser that supports Manifest V3 (Brave, Edge, and similar), on a version that still receives updates.
 
-1. **Unduh project ini** (clone repo, atau unduh ZIP lalu ekstrak) sehingga kamu punya satu folder yang berisi `manifest.json`.
-2. Buka halaman extension di browser:
+1. **Download this project** (clone the repo, or download the ZIP and extract it) so you have a folder containing `manifest.json`.
+2. Open the browser's extensions page:
    - Chrome: `chrome://extensions`
    - Brave: `brave://extensions`
    - Edge: `edge://extensions`
-3. Nyalakan **Developer mode** (pojok kanan atas).
-4. Klik **Load unpacked**, lalu pilih folder project (folder yang berisi `manifest.json`, bukan folder induknya).
-5. **Pin** extension lewat ikon puzzle di toolbar supaya mudah dijangkau.
+3. Turn on **Developer mode** (top right).
+4. Click **Load unpacked**, then select the project folder (the one containing `manifest.json`, not its parent).
+5. **Pin** the extension via the puzzle icon in the toolbar for easy access.
 
-Setelah itu, klik icon **Website Screen Snap** atau pakai shortcut.
+After that, click the **Website Screen Snap** icon or use a shortcut.
 
-### Mengubah kode atau memperbarui
+### Changing the code or updating
 
-Setiap kali ada file yang diubah, klik **Reload** pada kartu extension di halaman extension, lalu **refresh tab** yang mau di-capture supaya content script dimuat ulang.
+Whenever a file changes, click **Reload** on the extension card in the extensions page, then **refresh the tab** you want to capture so the content script is reloaded.
 
-### Mengubah shortcut
+### Changing shortcuts
 
-Buka **Settings → Shortcuts → Customize** (atau langsung ke `chrome://extensions/shortcuts`). Default-nya `Alt+Shift+S` (selected area) dan `Alt+Shift+V` (visible area).
+Go to **Settings → Shortcuts → Customize** (or directly to `chrome://extensions/shortcuts`). Defaults are `Alt+Shift+S` (selected area) and `Alt+Shift+V` (visible area).
 
 ---
 
-## Izin yang diminta
+## Permissions
 
-| Izin | Untuk apa |
+| Permission | What it's for |
 |---|---|
-| `activeTab` | Mengambil tab yang sedang aktif setelah kamu klik icon atau pakai shortcut, tanpa akses luas ke situs |
-| `scripting` | Memasukkan content script ke tab aktif (overlay seleksi, scroll, menyembunyikan bar sticky) |
-| `storage` | Menyimpan pengaturan dan pilihan delay |
-| `clipboardWrite` | Supaya Auto-copy bisa menulis ke clipboard tanpa perlu klik |
+| `activeTab` | Capturing the active tab after you click the icon or use a shortcut, without broad site access |
+| `scripting` | Injecting the content script into the active tab (selection overlay, scrolling, hiding sticky bars) |
+| `storage` | Saving settings and the delay choice |
+| `clipboardWrite` | Letting auto-copy write to the clipboard without a click |
 
-Tidak ada host permission, dan tidak ada permintaan jaringan.
+No host permissions, and no network requests.
 
 ---
 
-## Cara kerja singkat
+## How it works
 
-Service worker menjadi pusatnya: popup dan shortcut memberi tahu apa yang harus diambil, worker mengatur halaman dan API screenshot Chrome, lalu hasilnya diserahkan ke tab preview.
+The service worker is the hub: the popup and shortcuts say what to capture, the worker coordinates the page and Chrome's screenshot API, then hands the result to the preview tab.
 
 ```
-Popup / Shortcut ──▶ Service worker ◀──▶ Content script (di dalam website)
+Popup / Shortcut ──▶ Service worker ◀──▶ Content script (inside the website)
                           │
                           ├──▶ chrome.tabs.captureVisibleTab
                           │
                           ▼
-                     Tab preview (gabungkan gambar, editor, Copy / PNG / PDF)
+                     Preview tab (stitch images, editor, Copy / PNG / PDF)
                           │
                           ▼
-                     IndexedDB (riwayat)
+                     IndexedDB (history)
 ```
 
-**Full page** bekerja dengan loop: scroll satu tinggi layar, tunggu sebentar, sembunyikan elemen sticky/fixed, ambil gambar, ulangi sampai dasar halaman, lalu preview menyambung semua potongan. Beberapa detail:
+**Full page** works as a loop: scroll one screen height, wait briefly, hide sticky/fixed elements, capture, repeat until the bottom of the page, then the preview stitches all the slices together. Some details:
 
-- Elemen `fixed`/`sticky` dipindai ulang setelah setiap scroll, karena banyak situs baru mengubah header jadi bar tetap setelah di-scroll.
-- Tinggi halaman diukur ulang di setiap langkah, jadi konten lazy-load ikut terambil (batas 80 potongan).
-- Untuk aplikasi web yang scroll-nya ada di elemen dalam (bukan di `window`), terdeteksi otomatis. Header, sidebar, dan footer diambil sekali, lalu area scroll-nya yang diperpanjang.
-- Chrome membatasi `captureVisibleTab` sekitar dua kali per detik, jadi setiap potongan butuh sekitar 0,7 detik.
-- Canvas dibatasi 16384 px per sisi; gambar yang lebih besar otomatis diperkecil.
+- `fixed`/`sticky` elements are rescanned after every scroll, since many sites only turn a header into a fixed bar once scrolled.
+- Page height is re-measured at every step, so lazy-loaded content is captured too (limit of 80 slices).
+- Web apps whose scrolling happens in an inner element (not `window`) are detected automatically. The header, sidebar, and footer are captured once, then the scroll area is extended.
+- Chrome rate-limits `captureVisibleTab` to about twice per second, so each slice takes roughly 0.7 seconds.
+- Canvas is capped at 16384 px per side; larger images are scaled down automatically.
 
-### Struktur folder
+### Folder structure
 
 ```
-manifest.json              Manifest MV3: izin, popup, options, shortcut, ikon
-background.js              Service worker: delay, orkestrasi capture, serah-terima ke preview
-content.js                 Dimasukkan ke halaman: overlay seleksi, scroll, sembunyikan bar sticky
-popup.html / .css / .js    Popup: kartu mode, delay, cek halaman terbatas
-preview.html / .css / .js  Tab preview: gabungkan gambar, toolbar, Copy / Download / PDF
-editor.js                  Editor non-destruktif (crop, blur, kotak, panah, teks, step, undo/redo)
-pdf.js                     Penulis PDF satu halaman tanpa dependency
-options.html / .css / .js  Halaman pengaturan
-settings.js                Default, validasi, dan helper penyimpanan pengaturan
-history.html / .css / .js  Halaman riwayat
-history-db.js              Penyimpanan riwayat di IndexedDB (10 terakhir)
-ui.css / icons.js          Design token bersama dan ikon SVG inline
-icons/                     Logo (SVG) dan ikon PNG 16, 32, 48, 128 px
-image/                     Screenshot untuk dokumentasi ini
-design/                    Referensi desain (DESIGN.md dan mockup)
+manifest.json              MV3 manifest: permissions, popup, options, shortcuts, icons
+background.js              Service worker: delay, capture orchestration, handoff to preview
+content.js                 Injected into the page: selection overlay, scrolling, hide sticky bars
+popup.html / .css / .js    Popup: mode cards, delay, restricted-page check
+preview.html / .css / .js  Preview tab: stitch images, toolbar, Copy / Download / PDF
+editor.js                  Non-destructive editor (crop, blur, rectangle, arrow, text, step, undo/redo)
+pdf.js                     Dependency-free single-page PDF writer
+options.html / .css / .js  Settings page
+settings.js                Defaults, validation, and settings storage helpers
+history.html / .css / .js  History page
+history-db.js              IndexedDB history storage (last 10)
+ui.css / icons.js          Shared design tokens and inline SVG icons
+icons/                     Logo (SVG) and PNG icons at 16, 32, 48, 128 px
+image/                     Screenshots for this documentation
+design/                    Design references (DESIGN.md and mockups)
 ```
 
 ---
 
-## Batasan yang diketahui
+## Known limitations
 
-| Batasan | Dampak | Solusi sementara |
+| Limitation | Impact | Workaround |
 |---|---|---|
-| Dua area scroll sekaligus (misalnya kolom kiri dan kanan) | Hanya area scroll terbesar yang diambil penuh | Ambil tiap sisi dengan Selected area |
-| Scroll horizontal | Konten di luar lebar layar tidak disambung | Belum ada |
-| Gambar lazy-load | Scroll cepat bisa mengambil placeholder | Scroll halaman sekali secara manual sebelum capture |
-| Halaman terbatas (`chrome://`, Web Store, sebagian PDF viewer, `file://` tanpa izin) | Capture dinonaktifkan atau gagal | Aktifkan "Allow access to file URLs" untuk file lokal |
-| Halaman sangat panjang | Gambar diperkecil agar muat batas canvas | Pakai Selected area untuk bagian yang dibutuhkan |
-| PDF | Hanya berisi gambar, teks tidak bisa dicari | Pakai PNG, atau tambahkan OCR nanti |
-| Blur | Berupa pixelate dan permanen setelah diekspor | Tutup area yang sedikit lebih besar dari teksnya |
-| Pindah tab saat hitung mundur delay | Capture dibatalkan, badge menampilkan `ERR` | Tetap di tab yang sama sampai selesai |
+| Two scroll areas at once (e.g. left and right columns) | Only the largest scroll area is fully captured | Capture each side with Selected area |
+| Horizontal scrolling | Content beyond the screen width isn't stitched | None yet |
+| Lazy-loaded images | Fast scrolling may capture placeholders | Scroll the page once manually before capturing |
+| Restricted pages (`chrome://`, Web Store, some PDF viewers, `file://` without permission) | Capture is disabled or fails | Enable "Allow access to file URLs" for local files |
+| Very long pages | Image is scaled down to fit the canvas limit | Use Selected area for the part you need |
+| PDF | Contains the image only, text isn't searchable | Use PNG, or add OCR later |
+| Blur | Pixelation, permanent once exported | Cover an area slightly larger than the text |
+| Switching tabs during the delay countdown | Capture is cancelled, badge shows `ERR` | Stay on the same tab until it finishes |
 
-### Pemecahan masalah
+### Troubleshooting
 
-- **Badge `ERR` di icon:** buka kartu extension di halaman extension, klik **service worker**, lalu baca console-nya.
-- **Tidak terjadi apa-apa setelah mengubah kode:** Reload extension, lalu refresh tab target.
-- **Header berulang di hasil full page:** laporkan bersama situsnya, supaya deteksi elemen sticky-nya bisa diperbaiki.
-- **Auto-copy gagal:** tombol Copy menampilkan "Copy failed". Detailnya ada di console tab preview.
+- **`ERR` badge on the icon:** open the extension card in the extensions page, click **service worker**, and read the console.
+- **Nothing happens after changing code:** Reload the extension, then refresh the target tab.
+- **Repeated header in a full-page result:** report it along with the site, so sticky element detection can be improved.
+- **Auto-copy fails:** the Copy button shows "Copy failed". Details are in the preview tab's console.
 
 ---
 
-## Status dan rencana
+## Status and roadmap
 
-Versi 0.1.0 masih tahap awal dan dikembangkan lewat iterasi cepat. Sebagian besar alurnya sudah dicoba di browser, tetapi belum ada tes otomatis di dalam repo.
+Version 0.1.0 is early-stage and developed through rapid iteration. Most flows have been tried in the browser, but there are no automated tests in the repo yet.
 
-Ide pengembangan berikutnya:
+Ideas for next steps:
 
-- Perbaikan full page: beberapa area scroll, scroll horizontal, menunggu gambar lazy-load.
-- PDF berhalaman (A4) sebagai alternatif satu halaman panjang.
-- Capture elemen (hover lalu klik elemen DOM).
-- Upload dan tautan berbagi (butuh backend).
-- Rekam layar / GIF.
-- Lokalisasi (Indonesia dan Inggris); antarmuka saat ini masih berbahasa Inggris.
+- Full-page improvements: multiple scroll areas, horizontal scroll, waiting for lazy-loaded images.
+- Paginated PDF (A4) as an alternative to one long page.
+- Element capture (hover and click a DOM element).
+- Upload and share links (needs a backend).
+- Screen recording / GIF.
+- Localization (Indonesian and English); the interface is currently in English.
 
-Lisensi belum ditentukan.
+License is not yet determined.
